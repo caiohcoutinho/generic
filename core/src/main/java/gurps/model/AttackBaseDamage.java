@@ -1,4 +1,6 @@
-package gurps.model;
+package main.java.gurps.model;
+
+import main.java.gurps.model.AttackBaseDamageType;
 
 /**
  * Created by Caio on 17/04/2015.

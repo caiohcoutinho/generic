@@ -8,19 +8,19 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable;
-import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.kotcrab.vis.ui.VisUI;
+import com.kotcrab.vis.ui.widget.file.FileChooser;
 import main.java.gurps.application.Configuration;
 import main.java.gurps.graphics.components.IconUploader;
 import main.java.gurps.graphics.components.MenuLink;
 import main.java.gurps.graphics.components.TextAreaInput;
 import main.java.gurps.graphics.components.TextInput;
-import main.java.gurps.graphics.listeners.HoverListener;
-import main.java.gurps.states.MenuState;
+import main.java.gurps.graphics.listeners.SuperListener;
 import main.java.gurps.states.State;
 import org.lwjgl.opengl.GL11;
 
@@ -31,15 +31,19 @@ import java.util.Map;
 /**
  * Created by Caio on 18/04/2015.
  */
-public class GraphicsFacadeLibGDX implements GraphicsFacade {
+public class GraphicsFacadeLibGDX extends ClickListener implements GraphicsFacade {
 
     private static final Texture BACKGROUND = new Texture(Gdx.files.internal(Configuration.BG_REF));
     private Stage stage;
     private SpriteBatch batch = new SpriteBatch();
     private ShapeRenderer shapeRenderer = new ShapeRenderer();
     private BitmapFont bitmapFont;
-    private BitmapFont menuFont;
+    private BitmapFont menuFont, smallMenuFont;
     private Map<MenuLink, Label> mapLinkActor = new HashMap<MenuLink, Label>();
+    private Map<IconUploader, FileChooser> mapFileChooser = new HashMap<IconUploader, FileChooser>();
+    private Map<IconUploader, Label> mapFileChooserLabel = new HashMap<IconUploader, Label>();
+    private Map<TextInput, TextField> mapTextInputField = new HashMap<TextInput, TextField>();
+
 
     private Integer height;
     private Integer width;
@@ -52,11 +56,11 @@ public class GraphicsFacadeLibGDX implements GraphicsFacade {
         this.drawPairOfVerticalLines(0, this.getHeight(), leftBoarderLineX, rightBoarderLineX);
 
         Color color = this.getColor(Configuration.MENU_TRANSPARENT_BACKGROUND_COLOR);
-        this.drawRect(color, leftBoarderLineX, 0, rightBoarderLineX - leftBoarderLineX, this.getHeight());
+        this.drawRect(color, leftBoarderLineX, 0f, rightBoarderLineX - leftBoarderLineX, this.getHeight());
 
     }
 
-    private void drawRect(Color color, Float x, Integer y, float width, int height) {
+    private void drawRect(Color color, float x, float y, float width, float height) {
         Gdx.gl.glEnable(GL11.GL_BLEND);
         Gdx.gl.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         shapeRenderer.setColor(color);
@@ -66,7 +70,7 @@ public class GraphicsFacadeLibGDX implements GraphicsFacade {
         Gdx.gl.glDisable(GL11.GL_BLEND);
     }
 
-    private void drawPairOfVerticalLines(Integer initialY, Integer finalY, float leftBoarderLineX, float rightBoarderLineX) {
+    private void drawPairOfVerticalLines(float initialY, float finalY, float leftBoarderLineX, float rightBoarderLineX) {
         shapeRenderer.setAutoShapeType(true);
         shapeRenderer.begin();
         shapeRenderer.setColor(this.getColor(Configuration.MENU_BOARDER_COLOR));
@@ -91,8 +95,8 @@ public class GraphicsFacadeLibGDX implements GraphicsFacade {
         shapeRenderer.line(leftBoarderLineX, height, rightBoarderLineX, height);
         shapeRenderer.end();
 
-        this.drawRect(this.getColor(Configuration.MENU_TRANSPARENT_BACKGROUND_COLOR), leftBoarderLineX, height,
-                rightBoarderLineX - leftBoarderLineX, this.getHeight());
+        this.drawRect(this.getColor(Configuration.MENU_TRANSPARENT_BACKGROUND_COLOR), leftBoarderLineX, new Float(height),
+                rightBoarderLineX - leftBoarderLineX, new Float(this.getHeight()));
 
     }
 
@@ -150,7 +154,7 @@ public class GraphicsFacadeLibGDX implements GraphicsFacade {
         Color defaultColor = this.getColor(Configuration.MENU_FONT_COLOR);
         if(!this.getMapLinkActor().containsKey(link)){
             Label label = new Label(text, new Label.LabelStyle(this.getMenuFont(), defaultColor));
-            label.addListener(new HoverListener(state, link));
+            label.addListener(new SuperListener(state, link));
             label.setPosition(x, y);
             this.getStage().addActor(label);
             this.getMapLinkActor().put(link, label);
@@ -199,7 +203,25 @@ public class GraphicsFacadeLibGDX implements GraphicsFacade {
     }
 
     public int drawTextInput(TextInput textInput, int descriptionX, int descriptionY, int descriptionWidth, State state) {
-        return 0;
+        Integer inputHeight = Configuration.TEXT_INPUT_HEIGTH;
+        if(!this.getMapTextInputField().containsKey(textInput)){
+            TextField.TextFieldStyle style = new TextField.TextFieldStyle();
+            style.fontColor = this.getColor(Configuration.TEXT_INPUT_TEXT_COLOR);
+            style.font = this.getSmallMenuFont();
+            TextField textField = new TextField(textInput.getInitialValue(), style);
+            textField.setPosition(descriptionX, descriptionY - inputHeight);
+            textField.setWidth(descriptionWidth);
+            textField.setMaxLength(Configuration.TEXT_INPUT_MAX_LENGTH);
+            textField.setHeight(inputHeight);
+            this.getStage().addActor(textField);
+            this.getMapTextInputField().put(textInput, textField);
+        }
+        batch.begin();
+        this.drawRect(this.getColor(Configuration.TEXT_INPUT_BACKGROUND_COLOR), descriptionX, descriptionY - inputHeight,
+                descriptionWidth, inputHeight);
+        batch.end();
+        TextField textField = this.getMapTextInputField().get(textInput);
+        return inputHeight;
     }
 
     public void drawContent(State state, Object... items) {
@@ -210,58 +232,86 @@ public class GraphicsFacadeLibGDX implements GraphicsFacade {
         int minY = 0;
         this.drawContentBox(leftBoarderLineX, rightBoarderLineX, height, minY);
 
-        int initialY = minY + Configuration.CONTENT_MARGIN;
+        int initialY = minY + height - Configuration.CONTENT_MARGIN;
         int initialX = (int) (leftBoarderLineX + Configuration.CONTENT_MARGIN);
-        int availableWidtht = (int) (rightBoarderLineX - leftBoarderLineX - Configuration.CONTENT_MARGIN * Configuration.CONTENT_MARGIN_MULTIPLIER);
+        int availableWidth = (int) (rightBoarderLineX - leftBoarderLineX - Configuration.CONTENT_MARGIN * Configuration.CONTENT_MARGIN_MULTIPLIER);
         for(Object item : items){
             int itemHeight = 0;
             if(item instanceof IconUploader){
                 itemHeight = this.drawIconUploader((IconUploader) item, initialX, initialY, state);
             } else if(item instanceof TextInput){
-                itemHeight = this.drawTextInput((TextInput) item, initialX, initialY, availableWidtht, state);
+                itemHeight = this.drawTextInput((TextInput) item, initialX, initialY, availableWidth, state);
             } else if(item  instanceof TextAreaInput){
-                itemHeight = this.drawTextAreaInput((TextAreaInput) item, initialX, initialY, availableWidtht, state);
+                itemHeight = this.drawTextAreaInput((TextAreaInput) item, initialX, initialY, availableWidth, state);
             }
 //            else if(item instanceof GearTable){
-//                //itemHeight = this.drawTable((GearTable) item, listener, initialX, initialY, availableWidtht);
+//                //itemHeight = this.drawTable((GearTable) item, listener, initialX, initialY, availableWidth);
 //            }
-            initialY += Configuration.CONTENT_MARGIN + itemHeight;
+            initialY = initialY - Configuration.CONTENT_MARGIN - itemHeight;
         }
     }
 
-    private void drawContentBox(Float leftBoarderLineX, Float rightBoarderLineX, Integer height, int minY) {
+    private void drawContentBox(float leftBoarderLineX, float rightBoarderLineX, float height, float minY) {
         this.drawRect(this.getColor(Configuration.MENU_TRANSPARENT_BACKGROUND_COLOR),
                 leftBoarderLineX, minY, rightBoarderLineX - leftBoarderLineX, height);
-        this.drawPairOfVerticalLines(minY, (int) height, leftBoarderLineX, rightBoarderLineX);
+        this.drawPairOfVerticalLines(minY, height, leftBoarderLineX, rightBoarderLineX);
         shapeRenderer.begin();
         shapeRenderer.line(leftBoarderLineX, minY, rightBoarderLineX, minY);
         shapeRenderer.end();
     }
 
     public int drawIconUploader(IconUploader icon, int iconX, int iconY, State state) {
-        FileChooser
+        Integer iconWidth = Configuration.ICON_UPLOADER_WIDTH;
+        Integer iconHeight = Configuration.ICON_UPLOADER_HEIGTH;
+        if(!this.getMapFileChooser().containsKey(icon)) {
+            VisUI.load(Gdx.files.internal("core/src/main/resources/ui_skin_raw/uiskin.json"));
+            FileChooser fc = new FileChooser(FileChooser.Mode.OPEN);
+            fc.setSelectionMode(FileChooser.SelectionMode.FILES);
+            fc.setListener(new SuperListener(state, icon));
+            fc.setPosition(iconX, iconY - iconHeight);
+            fc.setHeight(Configuration.FILE_CHOOSER_HEIGTH);
+            fc.setWidth(Configuration.FILE_CHOOSER_WIDTH);
+            this.getMapFileChooser().put(icon, fc);
+            //this.getStage().addActor(fc);
+        }
+        if(!this.getMapFileChooserLabel().containsKey(icon)){
+            Label.LabelStyle style = new Label.LabelStyle(this.getSmallMenuFont(), this.getColor(Configuration.ICON_LABEL_COLOR));
+            Label label = new Label(main.java.gurps.application.Label.ADD_ICON_MESSAGE,
+                    style);
+            label.setWrap(true);
+            label.setSize(iconWidth, iconHeight);
+            int value = BitmapFont.HAlignment.CENTER.ordinal();
+            label.setAlignment(value, value);
+            label.addListener(this);
+            this.getMapFileChooserLabel().put(icon, label);
+            label.setPosition(iconX, iconY - iconHeight);
+            this.getStage().addActor(label);
+        }
+        if(icon.getFile()!=null){
+            batch.begin();
+            Texture texture = new Texture(new FileHandle(icon.getFile()));
+            batch.draw(texture, iconX, iconY, iconWidth, iconHeight);
+            batch.end();
+            Label label = this.getMapFileChooserLabel().get(icon);
+            label.setPosition(iconX + iconWidth, iconY - iconHeight);
+            label.setText(main.java.gurps.application.Label.CHANGE_ICON_MESSAGE);
+        } else{
+            batch.begin();
+            this.drawRect(this.getColor(Configuration.ICON_BACKGROUND_COLOR), iconX, iconY - iconHeight, iconWidth, iconHeight);
+            batch.end();
+        }
 
-//        FileChooser.setFavoritesPrefsName("com.your.package.here");
-//
-////chooser creation
-//        fileChooser = new FileChooser(Mode.OPEN);
-//        fileChooser.setSelectionMode(SelectionMode.DIRECTORIES);
-//        fileChooser.setListener(new FileChooserAdapter() {
-//            @Override
-//            public void selected (FileHandle file) {
-//                textField.setText(file.file().getAbsolutePath());
-//            }
-//        });
-//
-////button listener
-//        selectFileButton.addListener(new ChangeListener() {
-//            @Override
-//            public void changed (ChangeEvent event, Actor actor) {
-//                //displaying chooser with fade in animation
-//                getStage().addActor(fileChooser.fadeIn());
-//            }
-//        });
-        return 0;
+        return iconHeight;
+    }
+
+    @Override
+    public void clicked(InputEvent event, float x, float y) {
+        for (Map.Entry<IconUploader, Label> entry : this.getMapFileChooserLabel().entrySet()) {
+            if(entry.getValue().equals(event.getTarget())){
+                this.getStage().addActor(this.getMapFileChooser().get(entry.getKey()).fadeIn());
+            }
+        }
+
     }
 
     public void beginDraw() {
@@ -279,7 +329,7 @@ public class GraphicsFacadeLibGDX implements GraphicsFacade {
 
     public void clear() {
         Gdx.graphics.getGL20().glClearColor( 1, 0, 0, 1 );
-        Gdx.graphics.getGL20().glClear( GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT );
+        Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
     }
 
     public void clearStage() {
@@ -321,6 +371,17 @@ public class GraphicsFacadeLibGDX implements GraphicsFacade {
         return menuFont;
     }
 
+    private BitmapFont getSmallMenuFont() {
+        if(smallMenuFont == null) {
+            FreeTypeFontGenerator freeTypeFontGenerator = new FreeTypeFontGenerator(
+                    Gdx.files.classpath(Configuration.RESOURCE_DIRECTORY + Configuration.MENU_FONT_NAME));
+            FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+            parameter.size = Configuration.SMALL_MENU_FONT_SIZE;
+            smallMenuFont = freeTypeFontGenerator.generateFont(parameter);
+        }
+        return smallMenuFont;
+    }
+
     public Stage getStage() {
         if(stage == null){
             stage = new Stage();
@@ -333,4 +394,28 @@ public class GraphicsFacadeLibGDX implements GraphicsFacade {
         this.stage = stage;
     }
 
+    public Map<IconUploader, FileChooser> getMapFileChooser() {
+        return mapFileChooser;
+    }
+
+    public void setMapFileChooser(Map<IconUploader, FileChooser> mapFileChooser) {
+        this.mapFileChooser = mapFileChooser;
+    }
+
+    public Map<IconUploader, Label> getMapFileChooserLabel() {
+        return mapFileChooserLabel;
+    }
+
+    public void setMapFileChooserLabel(Map<IconUploader, Label> mapFileChooserLabel) {
+        this.mapFileChooserLabel = mapFileChooserLabel;
+    }
+
+    public Map<TextInput, TextField> getMapTextInputField() {
+        return mapTextInputField;
+    }
+
+    public void setMapTextInputField(Map<TextInput, TextField> mapTextInputField) {
+        this.mapTextInputField = mapTextInputField;
+    }
 }
+

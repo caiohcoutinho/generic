@@ -1,4 +1,7 @@
-package gurps.model;
+package main.java.gurps.model;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by caio on 20/04/15.
@@ -20,5 +23,13 @@ public class CharacterBuilder {
         return this;
     }
 
+    public CharacterBuilder setAdvantageList(List<Advantage> advantageList) {
+        this.character.setAdvantages(advantageList);
+        return this;
+    }
 
+    public CharacterBuilder setDisadvantageList(List<Disadvantage> disadvantageList){
+        this.character.setDisadvantages(disadvantageList);
+        return this;
+    }
 }

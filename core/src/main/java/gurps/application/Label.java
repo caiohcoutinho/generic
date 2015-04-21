@@ -19,11 +19,12 @@ public class Label {
     public static final String CONDITIONS = "Condições";
     public static final String STATUS = "Estados";
     public static final String BACK = "Voltar";
-    public static final String GEAR_NAME = "Nome do Item";
+    public static final String GEAR_NAME = "--- Digite Nome do Item ---";
     public static final String EXIT = "Sair";
     public static final String ADD_ICON_MESSAGE = "Adicionar Ícone";
+    public static final String CHANGE_ICON_MESSAGE = "Alterar Ícone";
     public static final String ERROR_IMAGE_TOO_BIG = "O tamanho da imagem é inválido. Seleciona uma imagem de no máximo 100 x 100 pixels.";
-    public static final String GEAR_DESCRIPTION = "Descrição";
+    public static final String GEAR_DESCRIPTION = "--- Digite a Descrição do Item ---";
     public static final String MODEL_ATTACK_TYPE_PERF = "Perfuração";
     public static final String MODEL_ATTACK_TYPE_CONT = "Contusão";
     public static final String MODEL_ATTACK_TYPE_BURN = "Queimadura";
@@ -40,4 +41,5 @@ public class Label {
     public static final String GEAR_ATTACK_OPTION_DAMAGE = "Dano";
     public static final String GEAR_ATTACK_OPTION_REACH = "Alcance";
     public static final String ERROR_INVALID_GEAR_TABLE_MODEL_COLUMN_INDEX = "Erro de desenvolvimento: Foi pedida uma coluna para a tabela de tipos de ataque que não existe. O total são %d mas foi pedido %d";
+
 }

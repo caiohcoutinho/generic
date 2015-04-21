@@ -1,4 +1,4 @@
-package gurps.model;
+package main.java.gurps.model;
 
 /**
  * Created by caio on 20/04/15.

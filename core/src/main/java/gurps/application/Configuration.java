@@ -26,6 +26,7 @@ public class Configuration {
     public static final String MENU_FONT_NAME = "font/Blkchcry.ttf";
     public static final int MENU_FONT_STYLE = Font.PLAIN;
     public static final int MENU_FONT_SIZE = 28;
+    public static final Integer SMALL_MENU_FONT_SIZE = 20;
     public static final int MENU_MOUSE_OVER_FONT_SIZE = 32;
     public static final int MENU_HEADING_MOUSE_OVER_AREA_WIDTH = 250;
     public static final int MENU_HEADING_MOUSE_OVER_AREA_HEIGTH = 30;
@@ -67,9 +68,14 @@ public class Configuration {
     public static final int FIELD_LABEL_SPACE = 10;
     public static final int TEXT_INPUT_MAX_LENGTH = 50;
     public static final Integer TEXT_AREA_INPUT_HEIGTH = 100;
+    public static final Integer TEXT_INPUT_HEIGTH = 25;
     public static final Integer TEXT_AREA_INPUT_MAX_LENGTH = 500;
     public static final int TABLE_MAX_HEIGHT = 500;
     public static final String RESOURCE_DIRECTORY = "main/resources/";
     public static final String FONT_CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789][_!$%#@|\\/?-+=()*&.;,{}\"´`'<>";
     public static final Color MENU_HEADING_MOUSE_OVER_COLOR = Color.black;
+    public static final Integer FILE_CHOOSER_HEIGTH = 500;
+    public static final Integer FILE_CHOOSER_WIDTH = 500;
+
+
 }

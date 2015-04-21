@@ -1,4 +1,4 @@
-package gurps.model;
+package main.java.gurps.model;
 
 import java.util.List;
 

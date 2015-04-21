@@ -22,6 +22,7 @@
     <properties>
         <gdx.version>1.5.5</gdx.version>
         <vis.version>0.7.2</vis.version>
+        <junit.version>3.8.2</junit.version>
     </properties>
 
     <build>
@@ -73,10 +74,15 @@
             <artifactId>gdx-tools</artifactId>
             <version>${gdx.version}</version>
         </dependency>
-        <dependency>
+        <!-- <dependency> // TODO: Maybe this dependency pom is incorrect?
             <groupId>com.kotcrab.vis</groupId>
             <artifactId>vis-ui</artifactId>
             <version>${vis.version}</version>
+        </dependency> -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
         </dependency>
 
     </dependencies>

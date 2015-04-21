@@ -5,24 +5,19 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
-import main.java.gurps.application.Label;
+import com.kotcrab.vis.ui.widget.file.FileChooserListener;
 import main.java.gurps.graphics.components.IconUploader;
-import main.java.gurps.graphics.components.MenuLink;
 import main.java.gurps.states.State;
-import net.dermetfan.gdx.scenes.scene2d.ui.FileChooser;
-
-import java.io.File;
-import java.util.Map;
 
 /**
  * Created by Naiara on 19/04/2015.
  */
-public class HoverListener extends ClickListener implements FileChooser.Listener {
+public class SuperListener extends ClickListener implements FileChooserListener {
 
     private State state;
     private Object originalComponent;
 
-    public HoverListener(State state, Object originalComponent) {
+    public SuperListener(State state, Object originalComponent) {
         this.state = state;
         this.originalComponent = originalComponent;
     }
@@ -58,7 +53,16 @@ public class HoverListener extends ClickListener implements FileChooser.Listener
         this.originalComponent = originalComponent;
     }
 
-    public void choose(FileHandle fileHandle) {
+    public void selected(Array<FileHandle> array) {
+        if(originalComponent instanceof IconUploader){
+            FileHandle fileHandle = array.first();
+            ((IconUploader) originalComponent).setFile(fileHandle.file());
+        } else{
+            throw new RuntimeException("Um componente que não era um IconUploader foi chamado para adicionar arquivo.");
+        }
+    }
+
+    public void selected(FileHandle fileHandle) {
         if(originalComponent instanceof IconUploader){
             ((IconUploader) originalComponent).setFile(fileHandle.file());
         } else{
@@ -66,7 +70,7 @@ public class HoverListener extends ClickListener implements FileChooser.Listener
         }
     }
 
-    public void choose(Array<FileHandle> array) {
-        throw new UnsupportedOperationException();
+    public void canceled() {
+        System.out.println("Canceled");
     }
 }
